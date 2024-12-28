@@ -1,6 +1,4 @@
 #include "ps_fs.h"
-#include <stdio.h>
-#include <string.h>
 
 void dir_initialize(const char *p) {
   DIR *d;
