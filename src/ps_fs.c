@@ -29,8 +29,21 @@ void dir_initialize(const char *p) {
         lstat(path, buf);
         time = localtime(&buf->st_mtime);
 
-        snprintf(naming, sizeof(naming),"%d-%d-%d %s\n", time->tm_year+1900,
-                 time->tm_mon, time->tm_mday, file->d_name);
+        snprintf(naming, sizeof(naming),"%s/%d-%d-%d %s",p,
+                 time->tm_year+1900, time->tm_mon, time->tm_mday,
+                 file->d_name);
+
+        if(strstr(path, ".jpg") != NULL ||
+        strstr(path, ".jpeg") != NULL ||
+        strstr(path, ".png") != NULL ||
+        strstr(path, ".tiff") != NULL){
+          if (rename(path, naming) == 0){
+            printf("Performed renaming successfully");
+          }
+          else{
+            printf("Error while renaming.");
+          }
+        }
 
         free(buf);
       }
