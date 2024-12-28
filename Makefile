@@ -16,5 +16,6 @@ tmp:
 tempclean: tmp
 	rm -rf tmp
 
-clean: build tmp
-	rm -rf {build,tmp}
+.PHONY: clean
+clean:
+	rm -rf build tmp
