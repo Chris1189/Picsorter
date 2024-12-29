@@ -1,7 +1,7 @@
 # Picsorter
 
-Implementierung soll den Prozess der Bildbearbeitung erleichtern.
+Implementierung soll den Prozess der Bildbearbeitung (Sortierung, Einordnung und Benennung) erleichtern.
 
-Dazu zählen die Benennung der Dateien und die Einsortierung in Ordner.
+Aktuell umgesetzt ist die Benennung.
 
 
