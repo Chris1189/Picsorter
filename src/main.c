@@ -4,6 +4,7 @@ void usage() { printf("Usage: picsorter [-r] <filepath>"); }
 
 int main(int argc, char **argv) {
   struct dirent *file;
+  int rec;
 
   if (argc <= 1) {
     usage();
@@ -12,10 +13,9 @@ int main(int argc, char **argv) {
     if (strstr(argv[1],"-r") != NULL){
       usage();
     }
-    dir_initialize(argv[1]);
+    dir_initialize(argv[1], rec = 0);
   }
   else if (argc == 3){
-    dir_initialize(argv[2]);
-    //TODO: In ps_fs.c the recursive logic has to be implemented!
+    dir_initialize(argv[2], rec = 1);
   }
 }
