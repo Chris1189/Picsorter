@@ -5,6 +5,7 @@ void usage() { printf("Usage: picsorter [-r] <filepath>"); }
 int main(int argc, char **argv) {
   struct dirent *file;
   int rec;
+  int start;
 
   if (argc <= 1) {
     usage();
@@ -13,9 +14,19 @@ int main(int argc, char **argv) {
     if (strstr(argv[1],"-r") != NULL){
       usage();
     }
-    dir_initialize(argv[1], rec = 0);
+    rec = 0;
+    dir_initialize(argv[1], rec);
   }
-  else if (argc == 3){
-    dir_initialize(argv[2], rec = 1);
+  else{
+    if(strstr(argv[1], "-r") != NULL){
+      rec = 1;
+      start = 2;
+    }else{
+      rec = 0;
+      start = 1;
+    }
+    for(int i = start; i <= argc; i++){
+      dir_initialize(argv[i], rec);
+    }
   }
 }
