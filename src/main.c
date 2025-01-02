@@ -7,26 +7,33 @@ int main(int argc, char **argv) {
   int rec;
   int start;
 
-  if (argc <= 1) {
-    usage();
-  }
-  else if (argc == 2) {
-    if (strstr(argv[1],"-r") != NULL){
+  switch (argc) {
+    case 0:
       usage();
-    }
-    rec = 0;
-    dir_initialize(argv[1], rec);
-  }
-  else{
-    if(strstr(argv[1], "-r") != NULL){
-      rec = 1;
-      start = 2;
-    }else{
+      break;
+    case 1:
+      usage();
+      break;
+    case 2:{
+      if (strstr(argv[1],"-r") != NULL){
+        usage();
+      }
       rec = 0;
-      start = 1;
+      dir_initialize(argv[1], rec);
     }
-    for(int i = start; i <= argc; i++){
-      dir_initialize(argv[i], rec);
+      break;
+    default:{
+      if(strstr(argv[1], "-r") != NULL){
+        rec = 1;
+        start = 2;
+      }else{
+        rec = 0;
+        start = 1;
+      }
+
+      for(int i = start; i <= argc; i++){
+        dir_initialize(argv[i], rec);
+      }
     }
   }
 }
