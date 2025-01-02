@@ -1,0 +1,31 @@
+#!/usr/bin/sh
+
+folder_create(){
+  mkdir -p "${folder}/${year}/${month}/${day}"
+}
+
+folder_mv(){
+  if [ -n "$folder" ] && [ -n "$year" ] && [ -n "$month" ] && [ -n "$day" ]; then
+    mv "${folder}/${year}-${month}-${day}*.*" "${folder}/${year}/${month}/${day}/"
+  fi
+}
+
+main(){
+  local operation=$1
+  local folder=$2
+  local year=$3
+  local month=$4
+  local day=$5
+
+  case $operation in
+    "create")
+      folder_create "$folder" "$year" "$month" "$day"
+      ;;
+    "move")
+
+      folder_mv "$folder" "$year" "$month" "$day"
+      ;;
+  esac
+}
+
+main $@

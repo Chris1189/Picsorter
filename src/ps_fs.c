@@ -54,7 +54,6 @@ void ps_rename(const char *p, struct dirent *file){
   char *extension;
 
   snprintf(path, sizeof(path), "%s/%s", p, file->d_name);
-  printf("%s/%s\n",path, file->d_name);
 
   buf = malloc(sizeof(struct stat));
   lstat(path, buf);
@@ -66,7 +65,8 @@ void ps_rename(const char *p, struct dirent *file){
             time->tm_hour, time->tm_min, time->tm_sec);
 
   if(strstr(path, check) == NULL && extension != NULL){
-    snprintf(naming, sizeof(naming),"%s/%d-%d-%d_%d:%d:%d_Image%s",p,
+    snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d_Image%s",p,
+            time->tm_year+1900, time->tm_mon+1, time->tm_mday,
             time->tm_year+1900, time->tm_mon+1, time->tm_mday,
             time->tm_hour, time->tm_min, time->tm_sec, extension);
 
@@ -74,16 +74,76 @@ void ps_rename(const char *p, struct dirent *file){
     strstr(path, ".jpeg") != NULL ||
     strstr(path, ".png") != NULL ||
     strstr(path, ".tiff") != NULL){
-      printf("Transforming %s\n", path);
 
-      if (rename(path, naming) == 0){
-        printf("Performed renaming successfully\n");
-      }
-      else{
+      ps_create(p, time->tm_year+1900, time->tm_mon+1, time->tm_mday);  
+      if (rename(path, naming) != 0){
         printf("Error while renaming.\n");
       }
     }
   }
 
   free(buf);
+}
+
+int ps_create(const char *p, int y, int m, int d){
+  pid_t pid = fork();
+  char year[5];
+  char month[3];
+  char day[3];
+
+  snprintf(year, sizeof(year), "%d", y);
+  snprintf(month, sizeof(month), "%d", m);
+  snprintf(day, sizeof(day), "%d", d);
+
+  if (pid == -1) {
+    perror("Fork failed");
+    return -1;
+  } else if (pid == 0) {
+    execl("/usr/bin/sh", "sh", "./bin/foldersort", "create",
+          p, year, month, day, (char *) NULL);
+    perror("execl failed");
+    exit(EXIT_FAILURE);
+  } else {
+    int status;
+    waitpid(pid, &status, 0);
+    if (WIFEXITED(status)) {
+      printf("Script exited with status: %d\n", WEXITSTATUS(status));
+    } else {
+      printf("Script did not terminate normally.\n");
+    }
+  }
+
+  return 0;
+}
+
+
+int ps_sort(const char *p, int y, int m, int d){
+  char year[5];
+  char month[3];
+  char day[3];
+
+  pid_t pid = fork();
+  snprintf(year, sizeof(year), "%d", y);
+  snprintf(month, sizeof(month), "%d", m);
+  snprintf(day, sizeof(day), "%d", d);
+
+  if (pid == -1) {
+    perror("Fork failed");
+    return -1;
+  } else if (pid == 0) {
+    execl("/usr/bin/sh", "sh", "./bin/foldersort", "move",
+          p, year, month, day, (char *) NULL);
+    perror("execl failed");
+    exit(EXIT_FAILURE);
+  } else {
+    int status;
+    waitpid(pid, &status, 0);
+    if (WIFEXITED(status)) {
+      printf("Script exited with status: %d\n", WEXITSTATUS(status));
+    } else {
+      printf("Script did not terminate normally.\n");
+    }
+  }
+
+  return 0;
 }
