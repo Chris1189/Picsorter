@@ -1,6 +1,3 @@
-SRCDIR := .
-PATTERN := *.JPEG
-
 picsorter: tmp/main.o tmp/ps_fs.o build
 	gcc -o build/picsorter tmp/main.o tmp/ps_fs.o
 
@@ -13,14 +10,11 @@ tmp/main.o: src/main.c tmp
 build:
 	mkdir -p build
 
+restore:
+	git restore .
+
 tmp:
 	mkdir -p tmp
-
-rename:
-	find $(SRCDIR) -type f -iname "$(PATTERN)" | while read -r file; do \
-	  dir=$$(dirname "$$file"); \
-	  mv "$$file" "$$dir/untitled.jpeg"; \
-	done
 
 tempclean: tmp
 	rm -rf tmp
