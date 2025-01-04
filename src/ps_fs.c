@@ -46,13 +46,16 @@ void ps_scandir(const char *p, DIR *d, int rec){
 }
 
 void ps_rename(const char *p, struct dirent *file){
+  int match;
   struct stat *buf;
   struct tm *time;
   char path[500];
   char naming[500];
+  char *regmatch;
   char check[500];
   char *extension;
 
+  regmatch = malloc(sizeof(char)*256);
   snprintf(path, sizeof(path), "%s/%s", p, file->d_name);
 
   buf = malloc(sizeof(struct stat));
@@ -60,15 +63,37 @@ void ps_rename(const char *p, struct dirent *file){
   time = localtime(&buf->st_mtime);
   extension = strrchr(file->d_name, '.');
 
-  snprintf(check, sizeof(check),"%d-%d-%d_%d:%d:%d_Image",
+  snprintf(check, sizeof(check),"%d-%d-%d_%d:%d:%d",
           time->tm_year+1900, time->tm_mon+1, time->tm_mday,
             time->tm_hour, time->tm_min, time->tm_sec);
 
-  if(strstr(path, check) == NULL && extension != NULL){
-    snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d_Image%s",p,
-            time->tm_year+1900, time->tm_mon+1, time->tm_mday,
-            time->tm_year+1900, time->tm_mon+1, time->tm_mday,
-            time->tm_hour, time->tm_min, time->tm_sec, extension);
+  match = ps_test_naming(file->d_name, regmatch);
+
+  if(strstr(path, check) == NULL && (match == 0 || match == 2 || match == 3) 
+    && extension != NULL){
+    if (match == 0){
+      snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d_%s",p,
+              time->tm_year+1900, time->tm_mon+1, time->tm_mday,
+              time->tm_year+1900, time->tm_mon+1, time->tm_mday,
+              time->tm_hour, time->tm_min, time->tm_sec, file->d_name);
+    }
+
+    if (match == 2){
+      snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d_%s%s",p,
+              time->tm_year+1900, time->tm_mon+1, time->tm_mday,
+              time->tm_year+1900, time->tm_mon+1, time->tm_mday,
+              time->tm_hour, time->tm_min, time->tm_sec, regmatch, extension);
+      printf("%s", naming);
+    }
+
+    free(regmatch);
+
+    if (match == 3){
+      snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d%s",p,
+              time->tm_year+1900, time->tm_mon+1, time->tm_mday,
+              time->tm_year+1900, time->tm_mon+1, time->tm_mday,
+              time->tm_hour, time->tm_min, time->tm_sec, extension);
+    }
 
     if(strstr(path, ".jpg") != NULL ||
     strstr(path, ".jpeg") != NULL ||
@@ -106,9 +131,7 @@ int ps_create(const char *p, int y, int m, int d){
   } else {
     int status;
     waitpid(pid, &status, 0);
-    if (WIFEXITED(status)) {
-      printf("Script exited with status: %d\n", WEXITSTATUS(status));
-    } else {
+    if (!WIFEXITED(status)) {
       printf("Script did not terminate normally.\n");
     }
   }
@@ -138,12 +161,44 @@ int ps_sort(const char *p, int y, int m, int d){
   } else {
     int status;
     waitpid(pid, &status, 0);
-    if (WIFEXITED(status)) {
-      printf("Script exited with status: %d\n", WEXITSTATUS(status));
-    } else {
+    if (!WIFEXITED(status)) {
       printf("Script did not terminate normally.\n");
     }
   }
 
   return 0;
+}
+
+int ps_test_naming(const char *p, char *buf){
+  const char *pattern = "^[0-9]{4}([-_.][0-9]{1,2}){0,2}([-:_][0-9]{0,2}){0,4}_([^_.]+)\\..+$";
+  regex_t regex;
+  regmatch_t matches[4];
+  int reti;
+
+  reti = regcomp(&regex, pattern, REG_EXTENDED);
+  if (reti) {
+    fprintf(stderr, "Could not compile regex\n");
+    return 1;
+  }
+
+  reti = regexec(&regex, p, 4, matches, 0);
+  if (reti == REG_NOMATCH) {
+    return 0;
+  } else {
+    int start = matches[3].rm_so;
+    int end = matches[3].rm_eo;
+    if (start != -1 && end != -1) {
+      char result[256];
+      strncpy(result, p + start, end - start);
+      result[end - start] = '\0';
+      printf("For '%s', the part after the pattern is: %s\n", p, result);
+      snprintf(buf, sizeof(buf), "%s", result);
+      return 2;
+    } else {
+      printf("There is no explicit naming in %s.\n", p);
+      return 3;
+    }
+  }
+  
+  regfree(&regex);
 }
