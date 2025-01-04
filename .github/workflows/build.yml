@@ -19,3 +19,5 @@ jobs:
       run: ./build/picsorter test/ && ls test/
     - name: make clean
       run: make clean
+    - name: make rename
+      run: make rename
