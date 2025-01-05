@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
         usage();
       }
       rec = 0;
-      dir_initialize(argv[1], rec);
+      dir_initialize(argv[1], rec, argv[1]);
     }
       break;
     default:{
@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
       }
 
       for(int i = start; i <= argc; i++){
-        dir_initialize(argv[i], rec);
+        dir_initialize(argv[i], rec, argv[i]);
       }
     }
   }

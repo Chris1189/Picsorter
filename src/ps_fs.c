@@ -1,8 +1,10 @@
 #include "ps_fs.h"
 
-void dir_initialize(const char *p, int rec) {
+void dir_initialize(const char *p, int rec,
+                    const char *base_dir) {
   DIR *d;
   char file_abs[500];
+  char base_abs[500];
 
   if(p && *p != '/'){
     getcwd(file_abs, sizeof(file_abs));        
@@ -13,15 +15,25 @@ void dir_initialize(const char *p, int rec) {
     snprintf(file_abs, sizeof(file_abs), "%s", p);
   }
 
+  if(base_dir && *base_dir != '/'){
+    getcwd(base_abs, sizeof(base_abs));
+    strcat(base_abs, "/");
+    strcat(base_abs, base_dir);
+  }
+  else{
+    snprintf(base_abs, sizeof(base_abs), "%s", base_dir);
+  }
+
   d = opendir(file_abs);
 
   if (d != NULL) {
-    ps_scandir(file_abs, d, rec);
+    ps_scandir(file_abs, d, rec, base_abs);
   }
   closedir(d);
 }
 
-void ps_scandir(const char *p, DIR *d, int rec){
+void ps_scandir(const char *p, DIR *d,
+                int rec, const char *base){
   struct dirent *file;
 
   do {
@@ -38,14 +50,15 @@ void ps_scandir(const char *p, DIR *d, int rec){
 
     if(file->d_type == DT_DIR && rec){
       snprintf(new_p, sizeof(new_p), "%s/%s", p, file->d_name);
-      dir_initialize(new_p, rec);
+      dir_initialize(new_p, rec, base);
     }
-    ps_rename(p, file);
+    ps_rename(p, file, rec, base);
   }
   while (file);
 }
 
-void ps_rename(const char *p, struct dirent *file){
+void ps_rename(const char *p, struct dirent *file,
+               int rec, const char *base_dir){
   int match;
   struct stat *buf;
   struct tm *time;
@@ -72,14 +85,16 @@ void ps_rename(const char *p, struct dirent *file){
   if(strstr(path, check) == NULL && (match == 0 || match == 2 || match == 3) 
     && extension != NULL){
     if (match == 0){
-      snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d_%s",p,
+      snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d_%s",
+              rec ? base_dir : p,
               time->tm_year+1900, time->tm_mon+1, time->tm_mday,
               time->tm_year+1900, time->tm_mon+1, time->tm_mday,
               time->tm_hour, time->tm_min, time->tm_sec, file->d_name);
     }
 
     if (match == 2){
-      snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d_%s%s",p,
+      snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d_%s%s",
+              rec ? base_dir : p,
               time->tm_year+1900, time->tm_mon+1, time->tm_mday,
               time->tm_year+1900, time->tm_mon+1, time->tm_mday,
               time->tm_hour, time->tm_min, time->tm_sec, regmatch, extension);
@@ -89,7 +104,8 @@ void ps_rename(const char *p, struct dirent *file){
     free(regmatch);
 
     if (match == 3){
-      snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d%s",p,
+      snprintf(naming, sizeof(naming),"%s/%d/%d/%d/%d-%d-%d_%d:%d:%d%s",
+              rec ? base_dir: p,
               time->tm_year+1900, time->tm_mon+1, time->tm_mday,
               time->tm_year+1900, time->tm_mon+1, time->tm_mday,
               time->tm_hour, time->tm_min, time->tm_sec, extension);
@@ -101,6 +117,7 @@ void ps_rename(const char *p, struct dirent *file){
     strstr(path, ".tiff") != NULL){
 
       ps_create(p, time->tm_year+1900, time->tm_mon+1, time->tm_mday);  
+
       if (rename(path, naming) != 0){
         printf("Error while renaming.\n");
       }
@@ -110,7 +127,8 @@ void ps_rename(const char *p, struct dirent *file){
   free(buf);
 }
 
-int ps_create(const char *p, int y, int m, int d){
+int ps_create(const char *p, int y,
+              int m, int d){
   pid_t pid = fork();
   char year[5];
   char month[3];
@@ -140,7 +158,8 @@ int ps_create(const char *p, int y, int m, int d){
 }
 
 
-int ps_sort(const char *p, int y, int m, int d){
+int ps_sort(const char *p, int y,
+            int m, int d){
   char year[5];
   char month[3];
   char day[3];
