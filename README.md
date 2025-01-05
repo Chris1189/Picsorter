@@ -4,9 +4,10 @@ Picsorter soll den Prozess der Bildbearbeitung (Sortierung, Einordnung und Benen
 Dazu schreibt Picsorter das Datum der letzten Modifikation an den Anfang der Bilddatei, um eine
 Einsortierung in bestehende Ordnerstrukturen zu erleichtern.
 
-Aktuell ist die Benennung im Format YYYY-MM-DD umgesetzt ohne Übernahme der ursprünglichen Benennung.
+Die Benennung wird im Format YYYY-MM-DD umgesetzt mit Übernahme der ursprünglichen Benennung und
+Entfernen anderer Datumsangaben.
 Es ist möglich diese Umbenennung rekursiv auf mehrere gleichzeitig Ordner anzuwenden.
-Nach Umbenennung werden sie zeitlich in Ordner verteilt.
+Nach Umbenennung werden sie chronologisch in Ordner verteilt.
 
 ## Abhängigkeiten
 
