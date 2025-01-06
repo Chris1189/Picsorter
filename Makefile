@@ -1,8 +1,11 @@
-picsorter: tmp/main.o tmp/ps_fs.o build
-	gcc -o build/picsorter tmp/main.o tmp/ps_fs.o
+picsorter: tmp/main.o tmp/ps_fs.o tmp/ps_smb.o build
+	gcc -o build/picsorter tmp/main.o tmp/ps_fs.o tmp/ps_smb.o -lsmbclient
 
 tmp/ps_fs.o: src/ps_fs.c tmp 
 	gcc -c src/ps_fs.c -o tmp/ps_fs.o
+
+tmp/ps_smb.o: src/ps_smb.c tmp
+	gcc -c src/ps_smb.c -o tmp/ps_smb.o
 
 tmp/main.o: src/main.c tmp
 	gcc -c src/main.c -o tmp/main.o

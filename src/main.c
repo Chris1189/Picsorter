@@ -1,4 +1,5 @@
 #include "ps_fs.h"
+#include "ps_smb.h"
 
 void usage() { printf("Usage: picsorter [-r] <filepath>"); }
 
@@ -35,5 +36,7 @@ int main(int argc, char **argv) {
         dir_initialize(argv[i], rec, argv[i]);
       }
     }
+
+    ps_samba_start();
   }
 }
