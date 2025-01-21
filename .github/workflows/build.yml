@@ -13,11 +13,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install Dependencies
+      run:
+        sudo apt update && sudo apt install -y libsmbclient-dev
     - name: make
       run: make
     - name: test normal
       run: ./build/picsorter test/ && ls test/
     - name: test recursive
-      run: ./build/picsorter -r test/ && ls test/
+      run: ./build/picsorter test/ && ls test/
     - name: make clean
       run: make clean

@@ -1,42 +1,46 @@
 #include "ps_fs.h"
 #include "ps_smb.h"
 
-void usage() { printf("Usage: picsorter [-r] <filepath>"); }
+void usage() { printf("Usage: picsorter [-r] <filepath> [-s] <samba dir>"); }
 
 int main(int argc, char **argv) {
-  struct dirent *file;
-  int rec;
-  int start;
+  char *directory = NULL;
+  int c, rec, smb;
 
-  switch (argc) {
-    case 0:
-      usage();
-      break;
-    case 1:
-      usage();
-      break;
-    case 2:{
-      if (strstr(argv[1],"-r") != NULL){
-        usage();
-      }
-      rec = 0;
-      dir_initialize(argv[1], rec, argv[1]);
-    }
-      break;
-    default:{
-      if(strstr(argv[1], "-r") != NULL){
+  while ((c = getopt(argc, argv, "r:s:")) != -1){
+    switch (c) {
+      case 'r':{
         rec = 1;
-        start = 2;
-      }else{
-        rec = 0;
-        start = 1;
+        directory = optarg;
+        if (directory){
+          dir_initialize(directory, rec, directory);
+        }
       }
+        break;
 
-      for(int i = start; i <= argc; i++){
+      case 's':{
+        if (!smb){
+          ps_samba_start();
+        }
+        list_dir(optarg);
+      }
+        break;
+
+      case '?':
+        usage();
+      break;
+
+      default:{
+        for (int i = optind; i < argc; i++){
+          rec = 0;
+          dir_initialize(argv[i], rec, argv[i]);
+        }
+      }
+    }
+    for (int i = optind; i < argc; i++) {
+      if (rec){
         dir_initialize(argv[i], rec, argv[i]);
       }
     }
-
-    ps_samba_start();
   }
 }
