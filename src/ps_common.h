@@ -8,5 +8,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <regex.h>
+#include <errno.h>
 
 #endif
