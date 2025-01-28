@@ -130,34 +130,22 @@ void ps_rename(const char *p, struct dirent *file,
   }
 }
 
-int ps_create(const char *p, int y,
-              int m, int d){
-  pid_t pid = fork();
-  char year[5];
-  char month[3];
-  char day[3];
+int ps_create (const char *p, int y,
+               int m, int d) {
+  char new_dir[500];
 
-  snprintf(year, sizeof(year), "%d", y);
-  snprintf(month, sizeof(month), "%d", m);
-  snprintf(day, sizeof(day), "%d", d);
+  snprintf(new_dir, sizeof(new_dir), "%s/%d/", p,
+           y);
+  mkdir (new_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-  if (pid == -1) {
-    perror("Fork failed");
-    return -1;
-  } else if (pid == 0) {
-    execl("/usr/bin/sh", "sh", "./bin/foldersort", "create",
-          p, year, month, day, (char *) NULL);
-    perror("execl failed");
-    exit(EXIT_FAILURE);
-  } else {
-    int status;
-    waitpid(pid, &status, 0);
-    if (!WIFEXITED(status)) {
-      printf("Script did not terminate normally.\n");
-    }
-  }
+  snprintf(new_dir, sizeof(new_dir), "%s/%d/%d", p,
+           y, m);
+  mkdir (new_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-  return 0;
+  snprintf(new_dir, sizeof(new_dir), "%s/%d/%d/%d", p,
+           y, m, d);
+
+  return mkdir (new_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 
 int ps_test_naming(const char *p, char *buf){
