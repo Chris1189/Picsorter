@@ -12,8 +12,6 @@ void ps_rename(const char *p, struct dirent *file,
     int rec, const char *base_dir);
 int ps_create(const char *p, int y,
     int m, int d);
-int ps_sort(const char *p, int y,
-    int m, int d);
 int ps_test_naming(const char *p, char *buf);
 
 #endif
