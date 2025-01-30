@@ -5,7 +5,10 @@ void usage() { printf("Usage: picsorter [-r] <filepath> [-s] <samba dir>"); }
 
 int main(int argc, char **argv) {
   char *directory = NULL;
-  int c, rec, smb;
+  char *share_path = NULL;
+  int c, rec;
+  int smb = 0;
+  struct stat buf;
 
   while ((c = getopt(argc, argv, "r:s:")) != -1) {
     switch (c) {
@@ -13,15 +16,19 @@ int main(int argc, char **argv) {
       rec = 1;
       directory = optarg;
       if (directory) {
-        dir_initialize(directory, rec, directory);
+        dir_initialize(directory, rec, directory, smb, share_path);
       }
     } break;
 
     case 's': {
       if (!smb) {
         ps_samba_start();
+        smb = 1;
       }
-      list_dir(optarg);
+      // list_dir(optarg);
+      share_path = optarg;
+      if (test_dir(share_path))
+        exit(1);
     } break;
 
     case '?':
@@ -32,6 +39,6 @@ int main(int argc, char **argv) {
 
   for (int i = optind; i < argc; i++) {
     rec = 0;
-    dir_initialize(argv[i], rec, argv[i]);
+    dir_initialize(argv[i], rec, argv[i], smb, share_path);
   }
 }

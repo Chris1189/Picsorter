@@ -33,5 +33,10 @@ make
 - Gesichtserkennung und Sortierung nach Personen (Prüfung auf Realisierbarkeit)
 - Sicherung in anderen Dateisystemen (via samba) (**in progress**)
 
+Aktueller Status:
+
+- Probleme mit Schreibprozess: `smb1cli_req_writev_submit: called for dialect[SMB3_11] server[NAS]`
+- Authentifizierung wird bei jedem Schritt abgefragt
+
 
 
