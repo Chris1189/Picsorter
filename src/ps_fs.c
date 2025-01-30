@@ -1,7 +1,10 @@
 #include "ps_fs.h"
+#include "ps_smb.h"
+
 
 void
-dir_initialize (const char *p, int rec, const char *base_dir)
+dir_initialize (const char *p, int rec, const char *base_dir, int smb,
+                const char *share)
 {
   DIR *d;
   char *file_abs = malloc (sizeof (char) * 256);
@@ -29,7 +32,7 @@ dir_initialize (const char *p, int rec, const char *base_dir)
 
   if (d != NULL && file_abs && base_abs)
     {
-      ps_scandir (file_abs, d, rec, base_abs);
+      ps_scandir (file_abs, d, rec, base_abs, smb, share);
     }
   free (file_abs);
   free (base_abs);
@@ -37,7 +40,8 @@ dir_initialize (const char *p, int rec, const char *base_dir)
 }
 
 void
-ps_scandir (const char *p, DIR *d, int rec, const char *base)
+ps_scandir (const char *p, DIR *d, int rec, const char *base, int smb,
+            const char *share)
 {
   struct dirent *file;
 
@@ -57,15 +61,16 @@ ps_scandir (const char *p, DIR *d, int rec, const char *base)
       if (file->d_type == DT_DIR && rec)
         {
           snprintf (new_p, sizeof (new_p), "%s/%s", p, file->d_name);
-          dir_initialize (new_p, rec, base);
+          dir_initialize (new_p, rec, base, smb, share);
         }
-      ps_rename (p, file, rec, base);
+      ps_rename (p, file, rec, base, smb, share);
     }
   while (file);
 }
 
 void
-ps_rename (const char *p, struct dirent *file, int rec, const char *base_dir)
+ps_rename (const char *p, struct dirent *file, int rec, const char *base_dir,
+           int smb, const char *share)
 {
   int match;
   struct stat *buf;
@@ -131,6 +136,22 @@ ps_rename (const char *p, struct dirent *file, int rec, const char *base_dir)
           if (rename (path, naming) != 0)
             {
               printf ("Error while renaming.\n");
+            }
+
+          if (smb)
+            {
+              char new_path[STRINGSIZE];
+              char base_smb[STRINGSIZE];
+
+              snprintf (new_path, sizeof (new_path), "smb://%s/%d/%d/%d",
+                        share, time->tm_year + 1900, time->tm_mon + 1,
+                        time->tm_mday);
+
+              snprintf (base_smb, sizeof (new_path), "smb://%s", share);
+
+              ps_create_smb (base_smb, time->tm_year + 1900, time->tm_mon + 1,
+                             time->tm_mday);
+              ps_copy_file (naming, new_path);
             }
         }
 

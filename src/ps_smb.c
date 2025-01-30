@@ -15,12 +15,15 @@ ps_samba_start ()
       perror ("No SMBCCTX ctx created");
     }
   smbc_setDebug (ctx, debug);
+  smbc_setOptionProtocols (ctx, "SMB2", "SMB3");
+  smbc_setOptionUseCCache (ctx, 1);
 
   if (!smbc_init_context (ctx))
     {
       smbc_free_context (ctx, 0);
       printf ("Could not initialize smbc context\n");
     }
+
   smbc_setFunctionAuthData (ctx, get_auth_data_fn);
   smbc_set_context (ctx);
 }
@@ -28,7 +31,7 @@ ps_samba_start ()
 void
 list_dir (const char *path)
 {
-  char buf[1024];
+  char buf[STRINGSIZE];
   int scan = 0;
   char *p;
 
@@ -46,7 +49,7 @@ void
 browse (char *path, int scan, int indent)
 {
   char *p;
-  char buf[1024];
+  char buf[STRINGSIZE];
   int dir;
   struct stat st;
   struct smbc_dirent *dirent;
@@ -149,19 +152,6 @@ get_auth_data_fn (const char *pServer, const char *pShare, char *pWorkgroup,
       return;
     }
 
-  fprintf (stdout, "Workgroup: [%s] ", pWorkgroup);
-  fgets (temp, sizeof (temp), stdin);
-
-  if (temp[strlen (temp) - 1] == '\n') /* A new line? */
-    {
-      temp[strlen (temp) - 1] = '\0';
-    }
-
-  if (temp[0] != '\0')
-    {
-      strncpy (pWorkgroup, temp, maxLenWorkgroup - 1);
-    }
-
   fprintf (stdout, "Username: [%s] ", pUsername);
   fgets (temp, sizeof (temp), stdin);
 
@@ -193,4 +183,98 @@ get_auth_data_fn (const char *pServer, const char *pShare, char *pWorkgroup,
   strncpy (password, pPassword, sizeof (password) - 1);
 
   krb5_set = 1;
+}
+
+int
+test_dir (char *dst_url)
+{
+  char path[STRINGSIZE];
+  int dir;
+  char *p;
+
+  snprintf (path, sizeof (path), "smb://%s", dst_url);
+
+  if ((p = strchr (path, '\n')) != NULL)
+    {
+      *p = '\0';
+    }
+  printf ("Opening (%s)...\n", path);
+
+  if ((dir = smbc_opendir (path)) >= 0)
+    {
+      smbc_closedir (dir);
+      return 0;
+    }
+  else
+    {
+      printf ("Could not open directory [%s] (%d:%s)\n", path, errno,
+              strerror (errno));
+      return 1;
+    }
+}
+
+int
+ps_copy_file (const char *file, const char *share)
+{
+  int f, smb_f;
+  char dest[STRINGSIZE];
+  ssize_t b_read, b_written;
+  char buffer[BUFFERSIZE];
+  char *file_name;
+
+  f = open (file, O_RDONLY);
+
+  if (f < 0)
+    {
+      perror ("Error while opening source file!");
+      return 1;
+    }
+
+  file_name = strrchr (file, '/');
+
+  if (file_name)
+    snprintf (dest, sizeof (dest), "%s/%s", share, ++file_name);
+  else
+    perror ("Not possible to generate file name from source file");
+
+  printf ("%s", dest);
+
+  smb_f = smbc_creat (dest, O_WRONLY | O_CREAT);
+
+  if (smb_f < 0)
+    {
+      perror ("Error while opening smb file!");
+      return 1;
+    }
+
+  while ((b_read = read (f, buffer, BUFFERSIZE)) > 0)
+    {
+      b_written = smbc_write (smb_f, buffer, b_read);
+      if (b_written < 0)
+        {
+          perror ("Failed to write to SMB file");
+          return 1;
+        }
+    }
+
+  close (f);
+  smbc_close (smb_f);
+
+  return 0;
+}
+
+int
+ps_create_smb (const char *share, int y, int m, int d)
+{
+  char new_dir[500];
+
+  snprintf (new_dir, sizeof (new_dir), "%s/%d/", share, y);
+  smbc_mkdir (new_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+  snprintf (new_dir, sizeof (new_dir), "%s/%d/%d", share, y, m);
+  smbc_mkdir (new_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+  snprintf (new_dir, sizeof (new_dir), "%s/%d/%d/%d", share, y, m, d);
+
+  return smbc_mkdir (new_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
