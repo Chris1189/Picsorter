@@ -3,13 +3,14 @@
 #include "ps_common.h"
 #include <dirent.h>
 #include <sys/stat.h>
+#include "ps_smb.h"
 
 void dir_initialize(const char *path, int rec,
-    const char *base_dir);
+    const char *base_dir, int smb);
 void ps_scandir(const char *p, DIR *d,
-    int rec, const char *base_dir);
+    int rec, const char *base_dir, int smb);
 void ps_rename(const char *p, struct dirent *file,
-    int rec, const char *base_dir);
+    int rec, const char *base_dir, int smb);
 int ps_create(const char *p, int y,
     int m, int d);
 int ps_test_naming(const char *p, char *buf);

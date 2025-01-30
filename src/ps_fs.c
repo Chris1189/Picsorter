@@ -1,7 +1,7 @@
 #include "ps_fs.h"
 
 void dir_initialize(const char *p, int rec,
-                    const char *base_dir) {
+                    const char *base_dir, int smb) {
   DIR *d;
   char *file_abs = malloc(sizeof(char)*256);
   char *base_abs = malloc(sizeof(char)*256);
@@ -25,7 +25,7 @@ void dir_initialize(const char *p, int rec,
   d = opendir(file_abs);
 
   if (d != NULL && file_abs && base_abs) {
-    ps_scandir(file_abs, d, rec, base_abs);
+    ps_scandir(file_abs, d, rec, base_abs, smb);
   }
   free(file_abs);
   free(base_abs);
@@ -33,7 +33,7 @@ void dir_initialize(const char *p, int rec,
 }
 
 void ps_scandir(const char *p, DIR *d,
-                int rec, const char *base){
+                int rec, const char *base, int smb){
   struct dirent *file;
 
   do {
@@ -51,15 +51,15 @@ void ps_scandir(const char *p, DIR *d,
     if(file->d_type == DT_DIR && rec){
       snprintf(new_p, sizeof(new_p),
                "%s/%s", p, file->d_name);
-      dir_initialize(new_p, rec, base);
+      dir_initialize(new_p, rec, base, smb);
     }
-    ps_rename(p, file, rec, base);
+    ps_rename(p, file, rec, base, smb);
   }
   while (file);
 }
 
 void ps_rename(const char *p, struct dirent *file,
-               int rec, const char *base_dir){
+               int rec, const char *base_dir, int smb){
   int match;
   struct stat *buf;
   struct tm *time;
@@ -123,6 +123,10 @@ void ps_rename(const char *p, struct dirent *file,
 
       if (rename(path, naming) != 0){
         printf("Error while renaming.\n");
+      }
+
+      if (smb) {
+        //TODO: Here add: logic to move renamed file to smb share
       }
     }
 

@@ -12,4 +12,7 @@ void browse(char * path, int scan, int indent);
 void list_dir(const char *path);
 void ps_samba_start();
 
+int test_dir(const char* dst_url);
+int ps_copy_file (const char *file);
+
 #endif // PS_SMB_H

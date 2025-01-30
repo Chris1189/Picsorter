@@ -194,3 +194,20 @@ get_auth_data_fn(const char * pServer,
 
     krb5_set = 1;
 }
+
+int test_dir(const char* dst_url) {
+    char path[1024];
+    struct stat *buf = malloc(sizeof(struct stat));
+    snprintf(path, sizeof(path), "smb://%s", dst_url);
+    if (ENOENT != smbc_stat(path, buf)) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+int ps_copy_file (const char * file) {
+    //TODO: Test if given file path exists and then copy
+
+    return 0;
+}
