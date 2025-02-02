@@ -1,13 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <errno.h>
+#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/wait.h>
-#include <regex.h>
-#include <errno.h>
+#include <time.h>
+#include <unistd.h>
 
 #endif

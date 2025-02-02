@@ -7,38 +7,36 @@ int main(int argc, char **argv) {
   char *directory = NULL;
   int c, rec, smb;
 
-  while ((c = getopt(argc, argv, "r:s:")) != -1){
+  while ((c = getopt(argc, argv, "r:s:")) != -1) {
     switch (c) {
-      case 'r':{
-        rec = 1;
-        directory = optarg;
-        if (directory){
-          dir_initialize(directory, rec, directory);
-        }
+    case 'r': {
+      rec = 1;
+      directory = optarg;
+      if (directory) {
+        dir_initialize(directory, rec, directory);
       }
-        break;
+    } break;
 
-      case 's':{
-        if (!smb){
-          ps_samba_start();
-        }
-        list_dir(optarg);
+    case 's': {
+      if (!smb) {
+        ps_samba_start();
       }
-        break;
+      list_dir(optarg);
+    } break;
 
-      case '?':
-        usage();
+    case '?':
+      usage();
       break;
 
-      default:{
-        for (int i = optind; i < argc; i++){
-          rec = 0;
-          dir_initialize(argv[i], rec, argv[i]);
-        }
+    default: {
+      for (int i = optind; i < argc; i++) {
+        rec = 0;
+        dir_initialize(argv[i], rec, argv[i]);
       }
     }
+    }
     for (int i = optind; i < argc; i++) {
-      if (rec){
+      if (rec) {
         dir_initialize(argv[i], rec, argv[i]);
       }
     }
