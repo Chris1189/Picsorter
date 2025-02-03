@@ -27,18 +27,11 @@ int main(int argc, char **argv) {
     case '?':
       usage();
       break;
+    }
+  }
 
-    default: {
-      for (int i = optind; i < argc; i++) {
-        rec = 0;
-        dir_initialize(argv[i], rec, argv[i]);
-      }
-    }
-    }
-    for (int i = optind; i < argc; i++) {
-      if (rec) {
-        dir_initialize(argv[i], rec, argv[i]);
-      }
-    }
+  for (int i = optind; i < argc; i++) {
+    rec = 0;
+    dir_initialize(argv[i], rec, argv[i]);
   }
 }
