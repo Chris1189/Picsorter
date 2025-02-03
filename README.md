@@ -11,7 +11,11 @@ Nach Umbenennung werden sie chronologisch in Ordner verteilt.
 
 ## Abhängigkeiten
 
-Zur Kompilierung werden `make` und `gcc` benötigt. Andere Abhängigkeiten sollten nicht bestehen.
+Zur Kompilierung werden `libsmbclient-dev`,`make` und `gcc` benötigt. Andere Abhängigkeiten sollten nicht bestehen.
+
+```
+sudo apt-get install libsmbclient-dev make gcc
+```
 
 ## Installation
 
@@ -27,7 +31,7 @@ make
 
 - Verteilen nach anderen Schemata (Benennung der Zielordner, Verschieben von Unterordnern)
 - Gesichtserkennung und Sortierung nach Personen (Prüfung auf Realisierbarkeit)
-- Sicherung in anderen Dateisystemen (via samba)
+- Sicherung in anderen Dateisystemen (via samba) (**in progress**)
 
 
 
