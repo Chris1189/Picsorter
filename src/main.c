@@ -30,6 +30,9 @@ int main(int argc, char **argv) {
     }
   }
 
+  if(argc == optind)
+    usage();
+
   for (int i = optind; i < argc; i++) {
     rec = 0;
     dir_initialize(argv[i], rec, argv[i]);
