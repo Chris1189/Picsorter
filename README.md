@@ -1,17 +1,16 @@
 # Picsorter
 
-Picsorter soll den Prozess der Bildbearbeitung (Sortierung, Einordnung und Benennung) erleichtern.
-Dazu schreibt Picsorter das Datum der letzten Modifikation an den Anfang der Bilddatei, um eine
-Einsortierung in bestehende Ordnerstrukturen zu erleichtern.
+Picsorter is designed to simplify the process of image editing (sorting, categorizing and naming).
+For this purpose, Picsorter writes the date of the last modification at the beginning of the image
+file to facilitate sorting into existing folder structures.
 
-Die Benennung wird im Format YYYY-MM-DD umgesetzt mit Übernahme der ursprünglichen Benennung und
-Entfernen anderer Datumsangaben.
-Es ist möglich diese Umbenennung rekursiv auf mehrere gleichzeitig Ordner anzuwenden.
-Nach Umbenennung werden sie chronologisch in Ordner verteilt.
+The naming is implemented in the format YYYY-MM-DD with the original naming and removal of other dates.
+It is possible to apply this renaming recursively to several folders at the same time.
+After renaming, they are distributed chronologically in folders.
 
-## Abhängigkeiten
+## Dependencies
 
-Zur Kompilierung werden `libsmbclient-dev`,`make` und `gcc` benötigt. Andere Abhängigkeiten sollten nicht bestehen.
+For compilation `libsmbclient-dev`,`make` and `gcc` are needed.
 
 ```
 sudo apt-get install libsmbclient-dev make gcc
@@ -19,19 +18,9 @@ sudo apt-get install libsmbclient-dev make gcc
 
 ## Installation
 
-Picsorter kann folgendermaßen installiert werden:
-
+Picsorter can be installed the following way:
 ```
 git clone git@github.com:Chris1189/Picsorter.git picsorter  
 cd picsorter
 make
 ```
-
-## Geplante Implementierungen
-
-- Verteilen nach anderen Schemata (Benennung der Zielordner, Verschieben von Unterordnern)
-- Gesichtserkennung und Sortierung nach Personen (Prüfung auf Realisierbarkeit)
-- Sicherung in anderen Dateisystemen (via samba) (**in progress**)
-
-
-
