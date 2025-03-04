@@ -1,34 +1,45 @@
 #include "ps_fs.h"
 
-void dir_initialize(const char *p, int rec, const char *base_dir) {
+void
+check_abspath(char *dest, const char *path)
+{
+  if(path && *path != '/') {
+    dest = realpath(path, NULL) ? realpath(path, NULL) : NULL;
+  }
+  snprintf(dest, sizeof(path), "%s", path);
+}
+
+void
+dir_initialize(const char *p, int rec, const char *base_dir)
+{
   DIR *d;
   char *file_abs = malloc(sizeof(char) * 256);
   char *base_abs = malloc(sizeof(char) * 256);
 
-  if (p && *p != '/') {
-    file_abs = realpath(p, NULL) ? realpath(p, NULL) : NULL;
-  } else {
-    strcpy(file_abs, p);
-  }
-
-  if (base_dir && *base_dir != '/') {
-    base_abs = realpath(base_dir, NULL) ? realpath(base_dir, NULL) : NULL;
-  } else {
-    strcpy(base_abs, base_dir);
-  }
+  check_abspath(file_abs, p);
+  check_abspath(base_abs, base_dir);
 
   d = opendir(file_abs);
 
   if (d != NULL && file_abs && base_abs) {
     ps_scandir(file_abs, d, rec, base_abs);
   }
+
   free(file_abs);
   free(base_abs);
   closedir(d);
 }
 
-void ps_scandir(const char *p, DIR *d, int rec, const char *base) {
-  struct dirent *file;
+void
+prepare_dir_recursive(char *dest, const char *path, dirent *file)
+{
+  snprintf(dest, sizeof(dest), "%s/%s", path, file->d_name);
+}
+
+void
+ps_scandir(const char *p, DIR *d, int rec, const char *base)
+{
+  dirent *file;
 
   do {
     char *new_p;
@@ -42,18 +53,20 @@ void ps_scandir(const char *p, DIR *d, int rec, const char *base) {
     }
 
     if (file->d_type == DT_DIR && rec) {
-      snprintf(new_p, sizeof(new_p), "%s/%s", p, file->d_name);
+      prepare_dir_recursive(new_p, p, file);
       dir_initialize(new_p, rec, base);
     }
     ps_rename(p, file, rec, base);
   } while (file);
 }
 
-void ps_rename(const char *p, struct dirent *file, int rec,
-               const char *base_dir) {
+void
+ps_rename(const char *p, dirent *file, int rec,
+               const char *base_dir)
+{
   int match;
-  struct stat *buf;
-  struct tm *time;
+  statf *buf;
+  tm *time;
   char path[500];
   char naming[500];
   char *regmatch;
@@ -65,7 +78,7 @@ void ps_rename(const char *p, struct dirent *file, int rec,
   regmatch = malloc(sizeof(char) * 256);
   snprintf(path, sizeof(path), "%s/%s", p, file->d_name);
 
-  buf = malloc(sizeof(struct stat));
+  buf = malloc(sizeof(statf));
   lstat(path, buf);
   time = localtime(&buf->st_mtime);
   extension = strrchr(file->d_name, '.');
@@ -114,7 +127,9 @@ void ps_rename(const char *p, struct dirent *file, int rec,
   }
 }
 
-int ps_create(const char *p, int y, int m, int d) {
+int
+ps_create(const char *p, int y, int m, int d)
+{
   char new_dir[500];
 
   snprintf(new_dir, sizeof(new_dir), "%s/%d/", p, y);
@@ -128,7 +143,8 @@ int ps_create(const char *p, int y, int m, int d) {
   return mkdir(new_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 
-int ps_test_naming(const char *p, char *buf) {
+int
+ps_test_naming(const char *p, char *buf) {
   const char *pattern =
       "^[0-9]{4}([-_.][0-9]{1,2}){0,2}([-:_][0-9]{0,2}){0,4}_([^_.]+)\\..+$";
   regex_t regex;

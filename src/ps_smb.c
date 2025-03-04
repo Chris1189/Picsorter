@@ -2,7 +2,9 @@
 #include <samba-4.0/libsmbclient.h>
 #include <stdio.h>
 
-void ps_samba_start() {
+void
+ps_samba_start()
+{
   SMBCCTX *ctx;
   int debug = 0;
 
@@ -35,7 +37,9 @@ void list_dir(const char *path) {
   browse(buf, scan, 0);
 }
 
-void browse(char *path, int scan, int indent) {
+void
+browse(char *path, int scan, int indent)
+{
   char *p;
   char buf[1024];
   int dir;
@@ -105,9 +109,11 @@ void browse(char *path, int scan, int indent) {
   smbc_closedir(dir);
 }
 
-void get_auth_data_fn(const char *pServer, const char *pShare, char *pWorkgroup,
+void
+get_auth_data_fn(const char *pServer, const char *pShare, char *pWorkgroup,
                       int maxLenWorkgroup, char *pUsername, int maxLenUsername,
-                      char *pPassword, int maxLenPassword) {
+                      char *pPassword, int maxLenPassword)
+{
   char temp[128];
   char server[256] = {'\0'};
   char share[256] = {'\0'};
