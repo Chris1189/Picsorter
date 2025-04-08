@@ -14,9 +14,10 @@ main (int argc, char **argv)
   char *share_path = NULL;
   int c, rec;
   int smb = 0;
+  int debug = 0;
   struct stat buf;
 
-  while ((c = getopt (argc, argv, "r:s:")) != -1)
+  while ((c = getopt (argc, argv, "r:s:d")) != -1)
     {
       switch (c)
         {
@@ -31,11 +32,15 @@ main (int argc, char **argv)
           }
           break;
 
+        case 'd':
+          debug = 1;
+          break;
+
         case 's':
           {
             if (!smb)
               {
-                ps_samba_start ();
+                ps_samba_start (debug);
               }
             share_path = optarg;
             if (test_dir (share_path))

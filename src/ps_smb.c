@@ -3,10 +3,9 @@
 #include <stdio.h>
 
 void
-ps_samba_start ()
+ps_samba_start (int debug)
 {
   SMBCCTX *ctx;
-  int debug = 0;
 
   ctx = smbc_new_context ();
 
@@ -14,7 +13,11 @@ ps_samba_start ()
     {
       perror ("No SMBCCTX ctx created");
     }
-  smbc_setDebug (ctx, debug);
+
+  if (debug >= 0) {
+    smbc_setDebug (ctx, debug);
+  }
+
   smbc_setOptionProtocols (ctx, "SMB2", "SMB3");
   smbc_setOptionUseCCache (ctx, 1);
 
